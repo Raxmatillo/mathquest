@@ -33,5 +33,79 @@ class LessonPage extends StatefulWidget {final int id;final bool done;final Valu
 class _LessonPageState extends State<LessonPage>{bool started=false,finished=false;int selected=-999,combo=0;final controller=TextEditingController();@override Widget build(BuildContext context){final p=problem(widget.id);final correct=selected==p.answer;final level=widget.id%25==24?'Takrorlash':'${widget.id%25~/8+1}-level';return Scaffold(appBar:AppBar(title:Text('${modules[widget.id~/25]} · $level')),body:ListView(padding:const EdgeInsets.all(22),children:[LinearProgressIndicator(value:(widget.id%25+1)/25,minHeight:9,borderRadius:BorderRadius.circular(9)),const SizedBox(height:28),if(!started)...[const Text('📘 Mavzuni o‘rganamiz',style:TextStyle(fontSize:26,fontWeight:FontWeight.w900)),const SizedBox(height:18),Card(child:Padding(padding:const EdgeInsets.all(24),child:Text(p.explanation,style:const TextStyle(fontSize:21)))),const SizedBox(height:18),FilledButton(onPressed:()=>setState(()=>started=true),child:const Text('Topshiriqni boshlash'))]else...[Text('Topshiriq ${widget.id%25+1}/25',style:const TextStyle(fontSize:17)),const SizedBox(height:20),Text(p.question,style:const TextStyle(fontSize:28,fontWeight:FontWeight.w900)),const SizedBox(height:20),if(widget.id%3==0)...[TextField(controller:controller,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Javobni yozing',border:OutlineInputBorder()),onChanged:(v)=>selected=int.tryParse(v)??-999),const SizedBox(height:12)]else ...[for(final v in p.options)Card(child:RadioListTile<int>(title:Text('$v',style:const TextStyle(fontSize:23)),value:v,groupValue:selected== -999?null:selected,onChanged:finished?null:(x)=>setState(()=>selected=x!)))],if(finished)...[Card(child:Padding(padding:const EdgeInsets.all(20),child:Text(correct?'🎉 To‘g‘ri! +${widget.done?5:10} ball':'💡 To‘g‘ri javob: ${p.answer}. ${p.explanation}',style:const TextStyle(fontSize:20,fontWeight:FontWeight.bold)))),FilledButton(onPressed:widget.onNext,child:const Text('Keyingi topshiriq →'))]else FilledButton(onPressed:selected==-999?null:(){setState(()=>finished=true);if(correct){combo++;widget.onAnswer(10+min(combo,5)*2);}else{combo=0;widget.onAnswer(0);}},child:const Text('Tekshirish'))]]));}}
 class TugGame extends StatefulWidget{final VoidCallback onWin;const TugGame({super.key,required this.onWin});@override State<TugGame> createState()=>_TugGameState();}
 class _TugGameState extends State<TugGame>{int position=0,round=0;bool over=false;final random=Random();late int a,b;@override void initState(){super.initState();next();}void next(){a=random.nextInt(15)+2;b=random.nextInt(12)+1;}void answer(int v){if(over)return;setState((){position+=v==a+b?1:-1;round++;if(position>=5||position<=-5||round>=15){over=true;if(position>0)widget.onWin();}else next();});}@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('🪢 Arqon tortish · Bot')),body:Padding(padding:const EdgeInsets.all(24),child:Column(children:[const Text('Siz 🧒     VS     🤖 Bot',style:TextStyle(fontSize:24)),const SizedBox(height:22),Text('Arqon holati: $position / 5',style:const TextStyle(fontSize:21)),Slider(value:position.toDouble(),min:-5,max:5,onChanged:null),const SizedBox(height:35),if(over)...[Text(position>0?'🏆 Siz yutdingiz!':'🤖 O‘yin tugadi!',style:const TextStyle(fontSize:28)),FilledButton(onPressed:()=>Navigator.pop(context),child:const Text('Chiqish'))]else...[Text('$a + $b = ?',style:const TextStyle(fontSize:38,fontWeight:FontWeight.bold)),const SizedBox(height:20),for(final n in [a+b,a+b+1,max(0,a+b-1)]..shuffle(Random(round+3)))Padding(padding:const EdgeInsets.all(5),child:FilledButton.tonal(onPressed:()=>answer(n),child:Text('$n',style:const TextStyle(fontSize:22))))],const Spacer(),const Text('Demo: noto‘g‘ri javob arqonni bot tomon tortadi. Haqiqiy vaqtli bot keyin qo‘shiladi.')])));}
-class SpeedGame extends StatefulWidget{final ValueChanged<int> onFinish;const SpeedGame({super.key,required this.onFinish});@override State<SpeedGame> createState()=>_SpeedGameState();}
-class _SpeedGameState extends State<SpeedGame>{int score=0,turn=0;bool ended=false;DateTime? start;late int a,b;@override void initState(){super.initState();next();}void next(){a=Random().nextInt(18)+1;b=Random().nextInt(9)+1;}void answer(int n){start??=DateTime.now();if(ended)return;setState((){if(n==a+b)score++;turn++;if(turn>=15||DateTime.now().difference(start!).inSeconds>=60){ended=true;widget.onFinish(score);}else next();});}@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('⚡ Kim chaqqon?')),body:Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[Text('Ball: $score · Savol: $turn/15',style:const TextStyle(fontSize:22)),const SizedBox(height:30),if(ended)...[const Text('O‘yin tugadi!'),FilledButton(onPressed:()=>Navigator.pop(context),child:const Text('Chiqish'))]else...[Text('$a + $b = ?',style:const TextStyle(fontSize:40)),for(final n in [a+b,a+b+1,max(0,a+b-1)]..shuffle(Random(turn+6)))Padding(padding:const EdgeInsets.all(6),child:FilledButton.tonal(onPressed:()=>answer(n),child:Text('$n',style:const TextStyle(fontSize:22))))]]))));
+class SpeedGame extends StatefulWidget {
+  final ValueChanged<int> onFinish;
+  const SpeedGame({super.key, required this.onFinish});
+  @override
+  State<SpeedGame> createState() => _SpeedGameState();
+}
+
+class _SpeedGameState extends State<SpeedGame> {
+  int score = 0, turn = 0;
+  bool ended = false;
+  DateTime? start;
+  late int a, b;
+  final random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    next();
+  }
+
+  void next() {
+    a = random.nextInt(18) + 1;
+    b = random.nextInt(9) + 1;
+  }
+
+  void answer(int n) {
+    start ??= DateTime.now();
+    if (ended) return;
+    setState(() {
+      if (n == a + b) score++;
+      turn++;
+      if (turn >= 15 || DateTime.now().difference(start!).inSeconds >= 60) {
+        ended = true;
+        widget.onFinish(score);
+      } else {
+        next();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [a + b, a + b + 1, max(0, a + b - 1)]
+      ..shuffle(Random(turn + 6));
+    return Scaffold(
+      appBar: AppBar(title: const Text('⚡ Kim chaqqon?')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Ball: $score · Savol: $turn/15',
+                style: const TextStyle(fontSize: 22)),
+            const SizedBox(height: 30),
+            if (ended) ...[
+              const Text('O‘yin tugadi!'),
+              FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Chiqish'),
+              ),
+            ] else ...[
+              Text('$a + $b = ?', style: const TextStyle(fontSize: 40)),
+              for (final n in options)
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: FilledButton.tonal(
+                    onPressed: () => answer(n),
+                    child: Text('$n', style: const TextStyle(fontSize: 22)),
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
