@@ -15,8 +15,7 @@ class _RankingPageState extends State<RankingPage> {
   @override
   Widget build(BuildContext context) {
     // Development-only preview; no fictitious competitors are presented as real users.
-    final scores = [widget.points, widget.points ~/ 2, widget.points ~/ 5, widget.points];
-    final current = scores[period];
+    final current = period == 3 ? widget.points : 0;
     final scope = area == 0 ? 'O‘zbekiston' : area == 1 ? widget.region : widget.district;
     final users = <({String name,int score})>[
       (name: '@${widget.username}', score: current),
@@ -59,7 +58,7 @@ class _RankingPageState extends State<RankingPage> {
       if(users.length<=3) const Card(child:Padding(padding:EdgeInsets.all(20),child:Text('Hozircha boshqa ishtirokchilar yo‘q. Haqiqiy reytinglar server ishga tushgach paydo bo‘ladi.'))),
       for(var i=3;i<users.length;i++) Card(child:ListTile(leading:CircleAvatar(child:Text('${i+1}')),title:Text(users[i].name),trailing:Text('${users[i].score} ball'))),
       const SizedBox(height:8),
-      const Text('Eslatma: kunlik, haftalik va oylik ballar hozircha taxminiy namoyish qiymatlari. Server va sana bo‘yicha ball tarixi qo‘shilgach aniq hisoblanadi.',style:TextStyle(fontSize:12)),
+      const Text('Eslatma: kunlik, haftalik va oylik ballar uchun tarix hali yig‘ilmaydi, shuning uchun 0 ko‘rsatiladi. Server va sana bo‘yicha ball tarixi qo‘shilgach aniq hisoblanadi.',style:TextStyle(fontSize:12)),
     ]);
   }
 }
