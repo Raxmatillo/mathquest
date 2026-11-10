@@ -25,7 +25,29 @@ class _MathQuestState extends State<MathQuest> {
  Widget banner(String title,String subtitle,IconData icon)=>Container(padding:const EdgeInsets.all(22),decoration:BoxDecoration(gradient:const LinearGradient(colors:[blue,purple]),borderRadius:BorderRadius.circular(24)),child:Row(children:[Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:const TextStyle(fontSize:23,fontWeight:FontWeight.w900,color:Colors.white)),const SizedBox(height:8),Text(subtitle,style:const TextStyle(color:Colors.white))])),Icon(icon,color:Colors.white,size:54)]));
  int nextId(){for(int i=0;i<250;i++){if(!done.contains(i))return i;}return 249;}
  Widget legacyMissions()=>ListView(padding:const EdgeInsets.all(16),children:[const Text('10 modul • 30 level • 250 topshiriq',style:TextStyle(fontSize:15)),for(int m=0;m<10;m++)Card(child:ExpansionTile(leading:CircleAvatar(backgroundColor:Colors.primaries[m%Colors.primaries.length].withValues(alpha:.2),child:Text('${m+1}')),title:Text(modules[m],style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:Text('${List.generate(25,(i)=>m*25+i).where(done.contains).length}/25 bajarildi'),children:[for(int level=0;level<4;level++)ListTile(leading:Icon(level==3?Icons.workspace_premium:Icons.school),title:Text(level==3?'Modul takrorlash':'${level+1}-level'),subtitle:Text(level==3?'1 topshiriq':'8 topshiriq'),onTap:()=>openLesson(m*25+(level==3?24:level*8)))]))]);
- void openLesson(int id){Navigator.push(context,MaterialPageRoute(builder:(_)=>LessonPage(id:id,done:done.contains(id),onAnswer:(earned)=>award(id,earned),onNext:(){Navigator.pop(context);if(id<249)openLesson(id+1);else ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Barcha topshiriqlar yakunlandi!')));}))));}
+ void openLesson(int id) {
+   Navigator.push(
+     context,
+     MaterialPageRoute(
+       builder: (_) => LessonPage(
+         id: id,
+         done: done.contains(id),
+         onAnswer: (earned) => award(id, earned),
+         onNext: () {
+           Navigator.pop(context);
+           if (id < 249) {
+             openLesson(id + 1);
+           } else {
+             ScaffoldMessenger.of(context).showSnackBar(
+               const SnackBar(content: Text('Barcha topshiriqlar yakunlandi!')),
+             );
+           }
+         },
+       ),
+     ),
+   );
+ }
+
  Widget games()=>ListView(padding:const EdgeInsets.all(18),children:[banner('O‘yin maydoni 🎮','Matematikani o‘ynab o‘rgan!',Icons.sports_esports),const SizedBox(height:12),Card(child:ListTile(leading:const Text('🪢',style:TextStyle(fontSize:38)),title:const Text('Arqon tortish'),subtitle:const Text('Botga qarshi: kim tez va to‘g‘ri yechadi?'),trailing:const Icon(Icons.play_circle),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>TugGame(onWin:()=>award(-1,30)))))),Card(child:ListTile(leading:const Text('⚡',style:TextStyle(fontSize:38)),title:const Text('Kim chaqqon?'),subtitle:const Text('60 soniyada iloji boricha ko‘p misol yeching'),trailing:const Icon(Icons.play_circle),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>SpeedGame(onFinish:(score)=>award(-2,score*5)))))),const Card(child:ListTile(leading:Icon(Icons.wifi_off),title:Text('Onlayn multiplayer'),subtitle:Text('Haqiqiy o‘yinchilar bilan bellashish server va matchmaking tayyorlangach yoqiladi.')))]);
  Widget leaderboard()=>RankingPage(username:username,points:points,region:region,district:district);
  Widget friends()=>ListView(padding:const EdgeInsets.all(18),children:[banner('Do‘stlar 🤝','Birga o‘rganish yanada qiziqarli!',Icons.group),const SizedBox(height:12),const Card(child:ListTile(leading:Icon(Icons.lock_outline),title:Text('Do‘stlar takliflari'),subtitle:Text('Bolalar xavfsizligi uchun do‘stlik so‘rovlari serverda tekshiriladi. Hozircha faol emas.')))]);
