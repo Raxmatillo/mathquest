@@ -2,6 +2,8 @@ import 'dart:math';
 import 'ranking_page.dart';
 import 'quest_design.dart';
 import 'curriculum.dart';
+import 'quest_games.dart';
+import 'quest_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,10 +59,17 @@ class _MathQuestState extends State<MathQuest> {
    );
  }
 
- Widget games()=>ListView(padding:const EdgeInsets.all(18),children:[banner('O‘yin maydoni 🎮','Matematikani o‘ynab o‘rgan!',Icons.sports_esports),const SizedBox(height:12),Card(child:ListTile(leading:const Text('🪢',style:TextStyle(fontSize:38)),title:const Text('Arqon tortish'),subtitle:const Text('Botga qarshi: kim tez va to‘g‘ri yechadi?'),trailing:const Icon(Icons.play_circle),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>TugGame(onWin:()=>award(-1,30)))))),Card(child:ListTile(leading:const Text('⚡',style:TextStyle(fontSize:38)),title:const Text('Kim chaqqon?'),subtitle:const Text('60 soniyada iloji boricha ko‘p misol yeching'),trailing:const Icon(Icons.play_circle),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>SpeedGame(onFinish:(score)=>award(-2,score*5)))))),const Card(child:ListTile(leading:Icon(Icons.wifi_off),title:Text('Onlayn multiplayer'),subtitle:Text('Haqiqiy o‘yinchilar bilan bellashish server va matchmaking tayyorlangach yoqiladi.')))]);
+ Widget games()=>ListView(padding:const EdgeInsets.all(18),children:[
+  banner('O‘yin maydoni 🎮','Matematikani o‘ynab o‘rgan!',Icons.sports_esports),
+  const SizedBox(height:16),
+  Card(child:ListTile(leading:const Text('🪢',style:TextStyle(fontSize:38)),title:const Text('Arqon tortish',style:TextStyle(fontWeight:FontWeight.bold)),subtitle:const Text('AI botga qarshi o‘ynang'),trailing:const Icon(Icons.play_circle_fill,color:blue),onTap:()=>appNavigatorKey.currentState?.push(MaterialPageRoute(builder:(_)=>RopeArena(onWin:()=>award(-1,30)))))),
+  Card(child:ListTile(leading:const Text('⚡',style:TextStyle(fontSize:38)),title:const Text('Kim chaqqon?',style:TextStyle(fontWeight:FontWeight.bold)),subtitle:const Text('60 soniyada ko‘proq misol yeching'),trailing:const Icon(Icons.play_circle_fill,color:blue),onTap:()=>appNavigatorKey.currentState?.push(MaterialPageRoute(builder:(_)=>QuickMathArena(onFinish:(score)=>award(-2,score*5)))))),
+  const Card(child:ListTile(leading:Icon(Icons.wifi_off),title:Text('Onlayn o‘yinlar'),subtitle:Text('Haqiqiy matchmaking uchun server hali ulanmagan.'))),
+ ]);
  Widget leaderboard()=>RankingPage(username:username,points:points,region:region,district:district);
  Widget friends()=>ListView(padding:const EdgeInsets.all(18),children:[banner('Do‘stlar 🤝','Birga o‘rganish yanada qiziqarli!',Icons.group),const SizedBox(height:12),const Card(child:ListTile(leading:Icon(Icons.lock_outline),title:Text('Do‘stlar takliflari'),subtitle:Text('Bolalar xavfsizligi uchun do‘stlik so‘rovlari serverda tekshiriladi. Hozircha faol emas.')))]);
- Widget profile()=>ListView(padding:const EdgeInsets.all(18),children:[Center(child:CircleAvatar(radius:45,child:Text(fullName.isEmpty?'?':fullName[0].toUpperCase(),style:const TextStyle(fontSize:38)))),const SizedBox(height:8),Center(child:Text(fullName,style:const TextStyle(fontSize:23,fontWeight:FontWeight.bold))),Center(child:Text('@$username · $grade-sinf · $region')),const SizedBox(height:14),Row(children:[Expanded(child:stat('⏱️','$minutes','O‘qish vaqti')),Expanded(child:stat('📖','$completed','Darslar'))]),Row(children:[Expanded(child:stat('🔥','$streak','Seriya')),Expanded(child:stat('🏅','$bestStreak','Eng uzun seriya'))]),const SizedBox(height:14),const Text('Haftalik ballar',style:TextStyle(fontSize:21,fontWeight:FontWeight.bold)),const SizedBox(height:6),const Card(child:Padding(padding:EdgeInsets.all(20),child:Text('Kunlik ballar grafigi serverdagi sana bo‘yicha natijalar yig‘ilganda faollashadi.'))),SwitchListTile(title:const Text('Tungi rejim'),secondary:const Icon(Icons.dark_mode),value:dark,onChanged:(v){setState(()=>dark=v);save();}),Card(child:ListTile(title:const Text('Ilova tili'),trailing:DropdownButton<String>(value:lang,items:const [DropdownMenuItem(value:'uz',child:Text('O‘zbek')),DropdownMenuItem(value:'ru',child:Text('Русский')),DropdownMenuItem(value:'en',child:Text('English'))],onChanged:(v){setState(()=>lang=v!);save();}),subtitle:const Text('To‘liq tarjima paketlari keyingi bosqichda'))),Card(child:ListTile(leading:const Icon(Icons.privacy_tip),title:const Text('Maxfiylik'),subtitle:const Text('Profil ma’lumotlari hozircha faqat ushbu qurilmada saqlanadi.')))]);
+ Widget profile()=>QuestProfile(name:fullName,username:username,region:region,district:district,school:school,lang:lang,grade:grade,age:age,points:points,completed:completed,streak:streak,bestStreak:bestStreak,minutes:minutes,dark:dark,onDark:(v){setState(()=>dark=v);save();},onLanguage:(v){setState(()=>lang=v);save();});
+
 }
 class Problem {final String question,explanation;final int answer;final List<int> options;const Problem(this.question,this.answer,this.explanation,this.options);}
 const firstModuleQuestions = <List<Object>>[
