@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'quest_art.dart';
 
 class DemoStudent {
   final String name, region, district, avatar;
@@ -37,8 +38,8 @@ class _RankingPageState extends State<RankingPage> {
     ]..sort((a,b)=>b.score.compareTo(a.score));
     final scope=area==0?'O‘zbekiston':area==1?widget.region:'${widget.district}, ${widget.region}';
     return Container(color:const Color(0xFFF0F7FF),child:ListView(padding:const EdgeInsets.all(16),children:[
-      const Text('🏆  Chempionlar reytingi',style:TextStyle(fontSize:24,fontWeight:FontWeight.w900,color:Color(0xFF17335F))),
-      const SizedBox(height:5),
+      Container(padding:const EdgeInsets.all(18),decoration:BoxDecoration(gradient:const LinearGradient(colors:[Color(0xFF1769E8),Color(0xFF6B4CDD)]),borderRadius:BorderRadius.circular(26)),child:Row(children:[const Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('🏆 CHEMPIONLAR',style:TextStyle(fontSize:22,fontWeight:FontWeight.w900,color:Colors.white)),SizedBox(height:7),Text('Bilimingni oshir, yuqori o‘rinlarni egalla!',style:TextStyle(fontSize:14,color:Colors.white))])),const MikoFox(size:95)])),
+      const SizedBox(height:12),
       const Text('🧪 DEV DEMO — 10 ta namunaviy o‘quvchi. Haqiqiy onlayn reyting emas.',style:TextStyle(fontSize:12,color:Color(0xFF687994))),
       const SizedBox(height:16),
       _choices(areas,area,(v)=>setState(()=>area=v)),
