@@ -30,7 +30,7 @@ class _RopeArenaState extends State<RopeArena>{
  }
  void answer(int value){
   if(ended)return;
-  setState((){position=(position+(value==a+b?1:-1)).clamp(-5,5);round++;checkEnd();if(!ended)next();});
+  setState((){position=(position+(value==a+b?1:-1)).clamp(-5,5).toInt();round++;checkEnd();if(!ended)next();});
  }
  @override Widget build(BuildContext context){
   final choices=<int>{a+b,a+b+1,max(0,a+b-1)}.toList()..shuffle(Random(round+7));
@@ -42,7 +42,7 @@ class _RopeArenaState extends State<RopeArena>{
     const SizedBox(height:20),
     Container(height:18,decoration:BoxDecoration(color:Colors.white24,borderRadius:BorderRadius.circular(20)),child:LayoutBuilder(builder:(_,box)=>Stack(children:[
      Positioned(left:0,top:0,bottom:0,width:box.maxWidth*((position+5)/10),child:Container(decoration:BoxDecoration(color:const Color(0xFFFFD15B),borderRadius:BorderRadius.circular(20)))),
-     Positioned(left:(box.maxWidth*((position+5)/10)-9).clamp(0,box.maxWidth-18),top:0,child:const Icon(Icons.flag_rounded,size:18,color:Colors.white)),
+     Positioned(left:(box.maxWidth*((position+5)/10)-9).clamp(0.0,box.maxWidth-18).toDouble(),top:0,child:const Icon(Icons.flag_rounded,size:18,color:Colors.white)),
     ]))),
     const SizedBox(height:10),
     Text('Siz: $position    •    Raund: $round/15',style:const TextStyle(color:Colors.white,fontWeight:FontWeight.bold)),
