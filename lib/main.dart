@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'ranking_page.dart';
 import 'quest_design.dart';
+import 'curriculum.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,21 +91,12 @@ const firstModuleQuestions = <List<Object>>[
   ["TAKRORLASH: 5 + 7 − 3 = ?", 9, "5 + 7 = 12, so‘ng 12 − 3 = 9."],
 ];
 Problem problem(int id) {
- if(id<25){final row=firstModuleQuestions[id];final ans=row[1] as int;final opts=<int>{ans,ans+1,max(0,ans-1),ans+2}.toList()..shuffle(Random(id+7));return Problem(row[0] as String,ans,row[2] as String,opts);}
- final m=id~/25,step=id%25,a=2+(step*3+m)%16,b=1+(step*7+m)%9;
- int ans;String q,tip;
- switch(m){
- case 1:ans=a+b;q='$a + $b = ?';tip='Sonlarni birlashtiramiz.';break;
- case 2:ans=a;q='${a+b} − $b = ?';tip='Ayirishda bir qismini olib tashlaymiz.';break;
- case 3:ans=a*b;q='$a × $b = ?';tip='Bir xil sonni takror qo‘shamiz.';break;
- case 4:ans=a;q='${a*b} ÷ $b = ?';tip='Teng guruhlarga ajratamiz.';break;
- case 5:ans=max(a,b);q='$a va $b sonlaridan kattasi?';tip='Kattaroq sonni tanlang.';break;
- case 6:ans=[3,4,4,0][step%4];q=['Uchburchakning nechta tomoni bor?','Kvadratning nechta tomoni bor?','To‘g‘ri to‘rtburchakning nechta burchagi bor?','Aylananing nechta burchagi bor?'][step%4];tip='Shakl tomonlari va burchaklarini sanang.';break;
- case 7:ans=a*10;q='$a santimetr necha millimetr?';tip='1 sm = 10 mm.';break;
- case 8:ans=a+b;q='Alida $a ta qalam bor, yana $b ta oldi. Jami nechta?';tip='Jami sonni topish uchun qo‘shamiz.';break;
- default:ans=a+2;q='$a, ${a+1}, ?, ${a+3}. Yetishmayotgan son?';tip='Sonlar bittadan ortmoqda.';
- }
- return Problem(q,ans,tip,<int>{ans,ans+1,ans+2,max(0,ans-1)}.toList()..shuffle(Random(id+7)));
+ final lesson=exerciseFor(id);
+ final answer=lesson.answer;
+ final choices=<int>{answer,answer+1,max(0,answer-1),answer+2};
+ var offset=3;
+ while(choices.length<4){choices.add(answer+offset++);}
+ return Problem(lesson.question,answer,lesson.explanation,choices.toList()..shuffle(Random(id+7)));
 }
 class LessonPage extends StatefulWidget {
  final int id; final bool done; final ValueChanged<int> onAnswer; final VoidCallback onNext;
