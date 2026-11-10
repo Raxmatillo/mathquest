@@ -25,7 +25,7 @@ class _MathQuestState extends State<MathQuest> {
  Widget banner(String title,String subtitle,IconData icon)=>Container(padding:const EdgeInsets.all(22),decoration:BoxDecoration(gradient:const LinearGradient(colors:[blue,purple]),borderRadius:BorderRadius.circular(24)),child:Row(children:[Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(title,style:const TextStyle(fontSize:23,fontWeight:FontWeight.w900,color:Colors.white)),const SizedBox(height:8),Text(subtitle,style:const TextStyle(color:Colors.white))])),Icon(icon,color:Colors.white,size:54)]));
  int nextId(){for(int i=0;i<250;i++){if(!done.contains(i))return i;}return 249;}
  Widget legacyMissions()=>ListView(padding:const EdgeInsets.all(16),children:[const Text('10 modul • 30 level • 250 topshiriq',style:TextStyle(fontSize:15)),for(int m=0;m<10;m++)Card(child:ExpansionTile(leading:CircleAvatar(backgroundColor:Colors.primaries[m%Colors.primaries.length].withValues(alpha:.2),child:Text('${m+1}')),title:Text(modules[m],style:const TextStyle(fontWeight:FontWeight.bold)),subtitle:Text('${List.generate(25,(i)=>m*25+i).where(done.contains).length}/25 bajarildi'),children:[for(int level=0;level<4;level++)ListTile(leading:Icon(level==3?Icons.workspace_premium:Icons.school),title:Text(level==3?'Modul takrorlash':'${level+1}-level'),subtitle:Text(level==3?'1 topshiriq':'8 topshiriq'),onTap:()=>openLesson(m*25+(level==3?24:level*8)))]))]);
- void openLesson(int id){Navigator.push(context,MaterialPageRoute(builder:(_)=>LessonPage(id:id,done:done.contains(id),onAnswer:(earned)=>award(id,earned),onNext:(){Navigator.pop(context);openLesson(min(id+1,249));})));}
+ void openLesson(int id){Navigator.push(context,MaterialPageRoute(builder:(_)=>LessonPage(id:id,done:done.contains(id),onAnswer:(earned)=>award(id,earned),onNext:(){Navigator.pop(context);if(id<249)openLesson(id+1);else ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Barcha topshiriqlar yakunlandi!')));}))));}
  Widget games()=>ListView(padding:const EdgeInsets.all(18),children:[banner('O‘yin maydoni 🎮','Matematikani o‘ynab o‘rgan!',Icons.sports_esports),const SizedBox(height:12),Card(child:ListTile(leading:const Text('🪢',style:TextStyle(fontSize:38)),title:const Text('Arqon tortish'),subtitle:const Text('Botga qarshi: kim tez va to‘g‘ri yechadi?'),trailing:const Icon(Icons.play_circle),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>TugGame(onWin:()=>award(-1,30)))))),Card(child:ListTile(leading:const Text('⚡',style:TextStyle(fontSize:38)),title:const Text('Kim chaqqon?'),subtitle:const Text('60 soniyada iloji boricha ko‘p misol yeching'),trailing:const Icon(Icons.play_circle),onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>SpeedGame(onFinish:(score)=>award(-2,score*5)))))),const Card(child:ListTile(leading:Icon(Icons.wifi_off),title:Text('Onlayn multiplayer'),subtitle:Text('Haqiqiy o‘yinchilar bilan bellashish server va matchmaking tayyorlangach yoqiladi.')))]);
  Widget leaderboard()=>RankingPage(username:username,points:points,region:region,district:district);
  Widget friends()=>ListView(padding:const EdgeInsets.all(18),children:[banner('Do‘stlar 🤝','Birga o‘rganish yanada qiziqarli!',Icons.group),const SizedBox(height:12),const Card(child:ListTile(leading:Icon(Icons.lock_outline),title:Text('Do‘stlar takliflari'),subtitle:Text('Bolalar xavfsizligi uchun do‘stlik so‘rovlari serverda tekshiriladi. Hozircha faol emas.')))]);
@@ -76,8 +76,54 @@ Problem problem(int id) {
  }
  return Problem(q,ans,tip,<int>{ans,ans+1,ans+2,max(0,ans-1)}.toList()..shuffle(Random(id+7)));
 }
-class LessonPage extends StatefulWidget {final int id;final bool done;final ValueChanged<int> onAnswer;final VoidCallback onNext;const LessonPage({super.key,required this.id,required this.done,required this.onAnswer,required this.onNext});@override State<LessonPage> createState()=>_LessonPageState();}
-class _LessonPageState extends State<LessonPage>{bool started=false,finished=false;int selected=-999,combo=0;final controller=TextEditingController();@override Widget build(BuildContext context){final p=problem(widget.id);final correct=selected==p.answer;final level=widget.id%25==24?'Takrorlash':'${widget.id%25~/8+1}-level';return Scaffold(appBar:AppBar(title:Text('${modules[widget.id~/25]} · $level')),body:ListView(padding:const EdgeInsets.all(22),children:[LinearProgressIndicator(value:(widget.id%25+1)/25,minHeight:9,borderRadius:BorderRadius.circular(9)),const SizedBox(height:28),if(!started)...[const Text('🧠 Yangi bilimni kashf et!',style:TextStyle(fontSize:26,fontWeight:FontWeight.w900)),const SizedBox(height:18),Card(child:Padding(padding:const EdgeInsets.all(24),child:Text(p.explanation,style:const TextStyle(fontSize:21)))),const SizedBox(height:18),FilledButton(onPressed:()=>setState(()=>started=true),child:const Text('🚀 Boshlash'))]else...[Text('Topshiriq ${widget.id%25+1}/25',style:const TextStyle(fontSize:17)),const SizedBox(height:20),Text(p.question,style:const TextStyle(fontSize:28,fontWeight:FontWeight.w900)),const SizedBox(height:20),if(widget.id%3==0)...[TextField(controller:controller,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Javobni yozing',border:OutlineInputBorder()),onChanged:(v)=>selected=int.tryParse(v)??-999),const SizedBox(height:12)]else ...[for(final v in p.options)Card(child:RadioListTile<int>(title:Text('$v',style:const TextStyle(fontSize:23)),value:v,groupValue:selected== -999?null:selected,onChanged:finished?null:(x)=>setState(()=>selected=x!)))],if(finished)...[Card(child:Padding(padding:const EdgeInsets.all(20),child:Text(correct?'🎉 To‘g‘ri! +${widget.done?5:10} ball':'💡 To‘g‘ri javob: ${p.answer}. ${p.explanation}',style:const TextStyle(fontSize:20,fontWeight:FontWeight.bold)))),FilledButton(onPressed:widget.onNext,child:const Text('Keyingi topshiriq →'))]else FilledButton(onPressed:selected==-999?null:(){setState(()=>finished=true);if(correct){combo++;widget.onAnswer(10+min(combo,5)*2);}else{combo=0;widget.onAnswer(0);}},child:const Text('✨ Javobni tekshirish'))]]));}}
+class LessonPage extends StatefulWidget {
+ final int id; final bool done; final ValueChanged<int> onAnswer; final VoidCallback onNext;
+ const LessonPage({super.key,required this.id,required this.done,required this.onAnswer,required this.onNext});
+ @override State<LessonPage> createState()=>_LessonPageState();
+}
+class _LessonPageState extends State<LessonPage> {
+ bool started=false,finished=false;int? selected;final controller=TextEditingController();
+ @override void dispose(){controller.dispose();super.dispose();}
+ @override Widget build(BuildContext context){
+  final p=problem(widget.id),correct=selected==p.answer;
+  final level=widget.id%25==24?'Final': '${widget.id%25~/8+1}-level';
+  const navy=Color(0xFF17335F),blue=Color(0xFF1769E8);
+  return Scaffold(backgroundColor:const Color(0xFFF0F7FF),appBar:AppBar(backgroundColor:Colors.transparent,title:Text('${modules[widget.id~/25]} · $level',style:const TextStyle(fontWeight:FontWeight.w900,fontSize:18))),body:SafeArea(child:ListView(padding:const EdgeInsets.all(20),children:[
+   Row(children:[Expanded(child:ClipRRect(borderRadius:BorderRadius.circular(10),child:LinearProgressIndicator(value:(widget.id%25+1)/25,minHeight:12,color:const Color(0xFF29C987),backgroundColor:const Color(0xFFD6E4F7)))),const SizedBox(width:10),Text('${widget.id%25+1}/25',style:const TextStyle(fontWeight:FontWeight.bold))]),
+   const SizedBox(height:22),
+   Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(gradient:const LinearGradient(colors:[blue,Color(0xFF6754DC)]),borderRadius:BorderRadius.circular(25)),child:Row(children:[
+    const Text('🦊',style:TextStyle(fontSize:65)),const SizedBox(width:12),
+    Expanded(child:Text(!started?'Salom! Men Miko. Bugun birga yangi bilim olamiz!':finished?(correct?'Ajoyib! To‘g‘ri topding!':'Hechqisi yo‘q! Birga o‘rganamiz.'):'Diqqat bilan o‘yla, sen uddalaysan!',style:const TextStyle(color:Colors.white,fontSize:17,fontWeight:FontWeight.w800))),
+   ])),
+   const SizedBox(height:22),
+   if(!started)...[
+    const Text('📖 Yangi bilim',style:TextStyle(fontSize:25,fontWeight:FontWeight.w900,color:navy)),
+    const SizedBox(height:14),
+    Container(padding:const EdgeInsets.all(22),decoration:BoxDecoration(color:Colors.white,borderRadius:BorderRadius.circular(22)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+     Text(p.explanation,style:const TextStyle(fontSize:20,height:1.5,color:navy)),
+     const SizedBox(height:15),const Text('💡 Misolni yechib, bilimlaringni sinab ko‘r!',style:TextStyle(color:blue,fontWeight:FontWeight.bold)),
+    ])),
+    const SizedBox(height:25),
+    _button('Mashqni boshlash  ▶',()=>setState(()=>started=true)),
+   ]else...[
+    Text('Topshiriq ${widget.id%25+1}',style:const TextStyle(color:blue,fontWeight:FontWeight.w900,fontSize:16)),
+    const SizedBox(height:10),
+    Container(padding:const EdgeInsets.all(23),decoration:BoxDecoration(color:Colors.white,borderRadius:BorderRadius.circular(24)),child:Text(p.question,style:const TextStyle(fontSize:26,fontWeight:FontWeight.w900,color:navy))),
+    const SizedBox(height:20),
+    if(widget.id%3==0)TextField(controller:controller,enabled:!finished,keyboardType:TextInputType.number,decoration:InputDecoration(hintText:'Javobni yozing',filled:true,fillColor:Colors.white,border:OutlineInputBorder(borderRadius:BorderRadius.circular(18))),onChanged:(v)=>setState(()=>selected=int.tryParse(v)))
+    else ...[for(final v in p.options)Padding(padding:const EdgeInsets.only(bottom:11),child:InkWell(onTap:finished?null:()=>setState(()=>selected=v),borderRadius:BorderRadius.circular(18),child:Container(padding:const EdgeInsets.symmetric(horizontal:20,vertical:17),decoration:BoxDecoration(color:selected==v?const Color(0xFFD8E9FF):Colors.white,borderRadius:BorderRadius.circular(18),border:Border.all(color:selected==v?blue:const Color(0xFFE2EBF7),width:selected==v?2:1)),child:Row(children:[Icon(selected==v?Icons.check_circle:Icons.radio_button_unchecked,color:blue),const SizedBox(width:15),Text('$v',style:const TextStyle(fontSize:23,fontWeight:FontWeight.w800,color:navy))]))))],
+    if(finished)...[
+     Container(margin:const EdgeInsets.only(top:10,bottom:18),padding:const EdgeInsets.all(18),decoration:BoxDecoration(color:correct?const Color(0xFFD9F9E9):const Color(0xFFFFF0D4),borderRadius:BorderRadius.circular(20)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+      Text(correct?'🎉 To‘g‘ri! Ball qo‘shildi.':'💡 To‘g‘ri javob: ${p.answer}',style:const TextStyle(fontWeight:FontWeight.w900,fontSize:19,color:navy)),
+      const SizedBox(height:8),Text(p.explanation,style:const TextStyle(fontSize:16,color:navy)),
+     ])),
+     _button(widget.id==249?'Yakunlash  🏆':'Keyingi topshiriq  →',widget.onNext),
+    ]else Padding(padding:const EdgeInsets.only(top:14),child:_button('Javobni tekshirish  ✓',selected==null?null:(){setState(()=>finished=true);widget.onAnswer(correct?10:0);})),
+   ],
+  ])));
+ }
+ Widget _button(String label,VoidCallback? action)=>SizedBox(height:56,width:double.infinity,child:FilledButton(onPressed:action,style:FilledButton.styleFrom(backgroundColor:const Color(0xFF1769E8),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(18))),child:Text(label,style:const TextStyle(fontSize:17,fontWeight:FontWeight.w900))));
+}
 class TugGame extends StatefulWidget{final VoidCallback onWin;const TugGame({super.key,required this.onWin});@override State<TugGame> createState()=>_TugGameState();}
 class _TugGameState extends State<TugGame>{int position=0,round=0;bool over=false;final random=Random();late int a,b;@override void initState(){super.initState();next();}void next(){a=random.nextInt(15)+2;b=random.nextInt(12)+1;}void answer(int v){if(over)return;setState((){position+=v==a+b?1:-1;round++;if(position>=5||position<=-5||round>=15){over=true;if(position>0)widget.onWin();}else next();});}@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('🪢 Arqon tortish · Bot')),body:Padding(padding:const EdgeInsets.all(24),child:Column(children:[const Text('Siz 🧒     VS     🤖 Bot',style:TextStyle(fontSize:24)),const SizedBox(height:22),Text('Arqon holati: $position / 5',style:const TextStyle(fontSize:21)),Slider(value:position.toDouble(),min:-5,max:5,onChanged:null),const SizedBox(height:35),if(over)...[Text(position>0?'🏆 Siz yutdingiz!':'🤖 O‘yin tugadi!',style:const TextStyle(fontSize:28)),FilledButton(onPressed:()=>Navigator.pop(context),child:const Text('Chiqish'))]else...[Text('$a + $b = ?',style:const TextStyle(fontSize:38,fontWeight:FontWeight.bold)),const SizedBox(height:20),for(final n in [a+b,a+b+1,max(0,a+b-1)]..shuffle(Random(round+3)))Padding(padding:const EdgeInsets.all(5),child:FilledButton.tonal(onPressed:()=>answer(n),child:Text('$n',style:const TextStyle(fontSize:22))))],const Spacer(),const Text('Demo: noto‘g‘ri javob arqonni bot tomon tortadi. Haqiqiy vaqtli bot keyin qo‘shiladi.')])));}
 class SpeedGame extends StatefulWidget {
