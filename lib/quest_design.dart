@@ -1,3 +1,4 @@
+import 'quest_art.dart';
 import 'package:flutter/material.dart';
 
 const questBlue = Color(0xFF1769E8);
@@ -18,7 +19,7 @@ class QuestHome extends StatelessWidget {
       color: const Color(0xFFF0F7FF),
       child: ListView(padding: const EdgeInsets.fromLTRB(18, 12, 18, 26), children: [
         Row(children: [
-          const CircleAvatar(radius: 27, backgroundColor: Color(0xFFFFE8B4), child: Text('🦊', style: TextStyle(fontSize: 29))),
+          const CircleAvatar(radius: 27, backgroundColor: Color(0xFFFFE8B4), child: MikoFox(size: 48)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Salom, ${name.isEmpty ? 'Do‘stim' : name.split(' ').first}! 👋', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: questNavy)),
@@ -37,9 +38,9 @@ class QuestHome extends StatelessWidget {
         Container(
           decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF1769E8), Color(0xFF6749DF)]), borderRadius: BorderRadius.circular(28)),
           child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Row(children: [
-              Expanded(child: Text('Matematika sarguzashtiga tayyormisan?', style: TextStyle(fontSize: 23, height: 1.2, fontWeight: FontWeight.w900, color: Colors.white))),
-              Text('🦊', style: TextStyle(fontSize: 70)),
+            Row(children: [
+              const Expanded(child: Text('Matematika sarguzashtiga tayyormisan?', style: TextStyle(fontSize: 23, height: 1.2, fontWeight: FontWeight.w900, color: Colors.white))),
+              const MikoFox(size: 95),
             ]),
             const SizedBox(height: 12),
             const Text('Miko bilan yangi bilimlarni kashf et!', style: TextStyle(color: Colors.white)),
@@ -54,7 +55,7 @@ class QuestHome extends StatelessWidget {
           padding: const EdgeInsets.all(17),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: const [BoxShadow(color: Color(0x110C4E98), blurRadius: 15, offset: Offset(0, 6))]),
           child: Row(children: [
-            Container(width: 64, height: 70, decoration: BoxDecoration(color: const Color(0xFFD8F8E9), borderRadius: BorderRadius.circular(17)), alignment: Alignment.center, child: const Text('🏝️', style: TextStyle(fontSize: 38))),
+            Container(width: 64, height: 70, decoration: BoxDecoration(color: const Color(0xFFD8F8E9), borderRadius: BorderRadius.circular(17)), alignment: Alignment.center, child: const IslandArt(size: 68)),
             const SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Text('1-modul', style: TextStyle(color: questBlue, fontWeight: FontWeight.bold)),
@@ -135,7 +136,6 @@ class QuestMissions extends StatelessWidget {
   Widget _island(int m) {
     final count = List.generate(25, (i) => m * 25 + i).where(done.contains).length;
     final available = m == 0 || done.contains(m * 25 - 1);
-    const icons = ['🏝️','🌿','🏔️','🏰','🌊','🌈','🔷','🚀','📜','🧠'];
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(17),
@@ -146,7 +146,7 @@ class QuestMissions extends StatelessWidget {
       ),
       child: Column(children: [
         Row(children: [
-          Text(icons[m % icons.length], style: const TextStyle(fontSize: 49)),
+          IslandArt(size: 100, variant: m),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('${m + 1}-modul', style: const TextStyle(color: Color(0xFFFFDF6B), fontWeight: FontWeight.w800)),
